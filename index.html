@@ -1,110 +1,949 @@
-<p>かなり優れたプライバシーの指紋: 2A04 A750 7465 752C 9B4D B199 0C6D 8543 2A8A 1C1B</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TAP_DETECTED // JAYZE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323&display=swap" rel="stylesheet">
+<style>
+:root{
+  --red:#ff1f2e;--red-dim:#8d0f18;--dark:#07070a;--panel:#0c0c11;--line:#1e1e26;
+  --txt:#d8d8e0;--amber:#ffb300;--green:#37d67a;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:var(--dark);color:var(--txt);font-family:'Share Tech Mono',ui-monospace,monospace;font-size:13px;overflow-x:hidden;letter-spacing:.5px;text-transform:uppercase;-webkit-font-smoothing:none}
+#scanlines,#vignette,#flash,#sweep{position:fixed;inset:0;pointer-events:none;z-index:9000}
+#scanlines{background:repeating-linear-gradient(to bottom,rgba(0,0,0,0) 0 2px,rgba(0,0,0,.35) 2px 4px);opacity:.55;mix-blend-mode:multiply}
+#vignette{background:radial-gradient(ellipse at center,rgba(0,0,0,0) 40%,rgba(0,0,0,.85) 100%)}
+#flash{background:var(--red);opacity:0;transition:opacity .09s linear;mix-blend-mode:screen}
+#flash.on{opacity:.3}
+#sweep{background:linear-gradient(to bottom,rgba(255,31,46,0),rgba(255,31,46,.10) 45%,rgba(255,31,46,.22) 50%,rgba(255,31,46,.10) 55%,rgba(255,31,46,0));height:180px;inset:auto 0 auto 0;top:-180px;animation:sweep 5.5s linear infinite}
+@keyframes sweep{0%{transform:translateY(-200px)}100%{transform:translateY(calc(100vh + 200px))}}
+body::before{content:"";position:fixed;inset:0;z-index:0;background-image:linear-gradient(rgba(255,31,46,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(255,31,46,.045) 1px,transparent 1px);background-size:44px 44px;animation:grid 22s linear infinite}
+@keyframes grid{0%{background-position:0 0,0 0}100%{background-position:44px 44px,44px 44px}}
+body.published::before{background-image:linear-gradient(rgba(255,31,46,.11) 1px,transparent 1px),linear-gradient(90deg,rgba(255,31,46,.11) 1px,transparent 1px)}
 
+/* ================= BOOT ================= */
+#boot{position:fixed;inset:0;z-index:9999;background:radial-gradient(ellipse at 50% 30%,#14020a,#04040a 70%);display:flex;align-items:center;justify-content:center;text-align:center;padding:26px 18px;cursor:crosshair;overflow-y:auto}
+#boot.hide{opacity:0;pointer-events:none;transition:opacity .5s}
+.bt{max-width:760px;width:100%;display:flex;flex-direction:column;align-items:center;gap:16px}
+.bt-tag{color:var(--red);font-size:11px;letter-spacing:6px;animation:blink2 1.4s steps(1) infinite}
+@keyframes blink2{0%,55%{opacity:1}56%,100%{opacity:.25}}
+.bt-main{font-family:'VT323',monospace;font-size:clamp(26px,5.6vw,52px);line-height:1.06;color:#fff;letter-spacing:1px;text-shadow:0 0 34px rgba(255,31,46,.7)}
+.bt-main b{color:var(--red);text-shadow:0 0 26px rgba(255,31,46,.95);background:rgba(255,31,46,.14);border:1px solid var(--red-dim);padding:0 6px;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+.bt-coord{font-family:'VT323',monospace;font-size:clamp(17px,3.4vw,26px);color:var(--amber);letter-spacing:3px;text-shadow:0 0 16px rgba(255,179,0,.5)}
+.bt-meta{font-size:10.5px;color:#7d7d8c;letter-spacing:1.5px}
+.bt-gal{font-size:12px;color:#fff;border:1px dashed var(--red-dim);padding:7px 16px;letter-spacing:2px}
+.bt-gal b{color:var(--red);font-size:16px}
+.bt-warn{font-family:'VT323',monospace;font-size:clamp(19px,3.6vw,28px);color:var(--red);letter-spacing:2px;margin-top:6px}
+.gate{border:1px solid var(--red);padding:15px 34px;color:var(--red);font-size:15px;letter-spacing:3px;background:rgba(255,31,46,.08);animation:pulseGate 1.1s infinite;transition:.2s}
+.gate.wait{border-color:#333;color:#555;animation:none;background:transparent}
+.gate:not(.wait):hover{background:var(--red);color:#0a0000}
+@keyframes pulseGate{0%,100%{box-shadow:0 0 0 rgba(255,31,46,0);background:rgba(255,31,46,.08)}50%{box-shadow:0 0 42px rgba(255,31,46,.5) inset,0 0 22px rgba(255,31,46,.35);background:rgba(255,31,46,.18)}}
+.bt-foot{font-size:9.5px;color:#4b4b58;letter-spacing:3px}
 
+/* ================= CHROME ================= */
+header{position:sticky;top:0;z-index:100;border-bottom:1px solid var(--red-dim);display:flex;justify-content:space-between;align-items:center;padding:10px 16px;background:rgba(10,0,2,.86);backdrop-filter:blur(4px)}
+.brand{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--red)}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--red);animation:blink .85s steps(1) infinite;box-shadow:0 0 10px var(--red)}
+@keyframes blink{0%,49%{opacity:1}50%,100%{opacity:.12}}
+.hdr-right{display:flex;gap:14px;align-items:center;font-size:11px;color:#8a8a99}
+#mute{border:1px solid var(--line);background:transparent;color:#8a8a99;font:inherit;font-size:11px;padding:4px 9px;cursor:pointer;letter-spacing:1px}
+#mute:hover{color:var(--red);border-color:var(--red)}
+#ticker{position:relative;z-index:10;overflow:hidden;white-space:nowrap;border-bottom:1px solid var(--red-dim);background:var(--red);color:#0a0000;font-size:11px;font-weight:700;letter-spacing:1.5px;padding:5px 0}
+#ticker span{display:inline-block;padding-left:100%;animation:scroll 24s linear infinite}
+@keyframes scroll{0%{transform:translateX(0)}100%{transform:translateX(-100%)}}
 
+.hero{position:relative;z-index:10;text-align:center;padding:40px 16px 24px}
+.tag{color:var(--amber);font-size:11px;letter-spacing:5px;margin-bottom:14px}
+.glitch{font-family:'VT323',monospace;font-size:clamp(32px,8vw,84px);line-height:.92;color:#fff;letter-spacing:2px;position:relative;text-shadow:0 0 30px rgba(255,31,46,.55);animation:shake 6s infinite}
+@keyframes shake{0%,96%,100%{transform:translate(0,0)}97%{transform:translate(-3px,2px)}98%{transform:translate(3px,-2px)}99%{transform:translate(-2px,-1px)}}
+.glitch::before,.glitch::after{content:attr(data-t);position:absolute;left:0;top:0;width:100%;overflow:hidden}
+.glitch::before{color:var(--red);animation:g1 3.1s infinite linear alternate-reverse;clip-path:inset(0 0 55% 0)}
+.glitch::after{color:#00e5ff;animation:g2 2.3s infinite linear alternate-reverse;clip-path:inset(58% 0 0 0)}
+@keyframes g1{0%,92%,100%{transform:translate(0)}93%{transform:translate(-5px,-2px)}95%{transform:translate(4px,1px)}}
+@keyframes g2{0%,90%,100%{transform:translate(0)}91%{transform:translate(5px,2px)}94%{transform:translate(-4px,-1px)}}
+.tapped-line{margin-top:20px;font-size:clamp(13px,2.4vw,19px)}
+.tapped-line b{color:var(--red);text-shadow:0 0 18px rgba(255,31,46,.8)}
+#deviceName{background:rgba(255,31,46,.13);border:1px solid var(--red-dim);padding:1px 8px;color:#fff}
+.sub{margin-top:12px;color:#6e6e7c;font-size:11px;letter-spacing:2px}
+.sub b{color:var(--amber)}
 
+main{position:relative;z-index:10;max-width:1240px;margin:0 auto;padding:0 14px 60px;display:grid;gap:14px;grid-template-columns:repeat(12,1fr)}
+.panel{border:1px solid var(--line);background:linear-gradient(180deg,rgba(255,31,46,.045),rgba(255,255,255,.012));padding:0 0 4px;position:relative}
+.panel::after{content:"";position:absolute;top:-1px;left:-1px;width:14px;height:14px;border-top:2px solid var(--red);border-left:2px solid var(--red)}
+.panel h2{font-size:10.5px;letter-spacing:3px;color:var(--red);padding:9px 12px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;font-weight:400}
+.panel h2 em{font-style:normal;color:#4b4b58;font-size:9px}
+.row{display:flex;justify-content:space-between;gap:10px;padding:6px 12px;border-bottom:1px dashed rgba(255,255,255,.05);font-size:11.5px;align-items:baseline}
+.row:last-child{border-bottom:0}
+.row .k{color:#5e5e6d;flex:0 0 42%;font-size:10px;letter-spacing:1px}
+.row .v{color:#e9e9f0;text-align:right;word-break:break-all;flex:1}
+.row .v.pend{color:var(--red)}
+.row .v.big{color:var(--red);font-size:14px;text-shadow:0 0 12px rgba(255,31,46,.6)}
+.c1{grid-column:span 12}.c4{grid-column:span 4}.c5{grid-column:span 5}.c6{grid-column:span 6}.c7{grid-column:span 7}.c8{grid-column:span 8}
+@media(max-width:900px){.c4,.c5,.c6,.c7,.c8{grid-column:span 12}}
 
+#deadline{grid-column:span 12;border:1px solid var(--red);background:linear-gradient(180deg,rgba(255,31,46,.13),rgba(255,31,46,.03));position:relative;overflow:hidden}
+#deadline .top{display:flex;justify-content:space-between;align-items:center;padding:8px 14px;border-bottom:1px solid var(--red-dim);font-size:10px;letter-spacing:3px;color:var(--red)}
+#clockBig{font-family:'VT323',monospace;font-size:clamp(56px,15vw,140px);line-height:1;text-align:center;color:var(--red);text-shadow:0 0 42px rgba(255,31,46,.75);padding:6px 0 0;letter-spacing:6px;font-variant-numeric:tabular-nums}
+body.critical #clockBig{animation:crit .9s steps(1) infinite}
+@keyframes crit{0%,49%{color:#fff;text-shadow:0 0 60px #ff1f2e}50%,100%{color:var(--red)}}
+#deadline .lbl{text-align:center;font-size:11px;letter-spacing:4px;color:var(--amber);padding-bottom:10px}
+#deadline .foot{display:flex;justify-content:center;gap:20px;padding:8px;border-top:1px solid var(--red-dim);font-size:9.5px;color:#7d7d8c;flex-wrap:wrap;text-align:center}
+#deadline .foot b{color:var(--red)}
 
+/* ---- STEPS ---- */
+#deal{border-color:var(--red)}
+.steps{padding:6px 12px}
+.step{display:flex;gap:12px;align-items:flex-start;padding:11px 0;border-bottom:1px dashed rgba(255,255,255,.07)}
+.step:last-child{border-bottom:0}
+.sn{flex:0 0 30px;height:30px;border-radius:50%;border:2px solid var(--red);color:var(--red);display:flex;align-items:center;justify-content:center;font-family:'VT323',monospace;font-size:19px;line-height:1;background:rgba(255,31,46,.08)}
+.stx{flex:1;padding-top:1px}
+.stx b{display:block;font-size:14px;color:#fff;letter-spacing:.6px;margin-bottom:3px;font-weight:400}
+.stx span{font-size:11px;color:#8a8a99;letter-spacing:.3px;line-height:1.5;display:block;text-transform:none}
+.stx em{font-style:normal;color:var(--red);text-transform:none}
+.then{margin:4px 12px 12px;padding:12px;border:1px solid var(--green);background:rgba(55,214,122,.07);color:var(--green);text-align:center;font-size:14px;letter-spacing:1.5px;line-height:1.5}
+.then span{display:block;font-size:10.5px;color:#7d7d8c;letter-spacing:1px;margin-top:5px;text-transform:none}
+#copyInvBig{display:block;width:calc(100% - 24px);margin:0 12px 10px;font:inherit;font-size:13px;letter-spacing:2px;padding:14px;background:var(--red);color:#0a0000;border:0;cursor:pointer;font-weight:700}
+#copyInvBig:hover{box-shadow:0 0 34px rgba(255,31,46,.7)}
+#copyInvBig.done{background:var(--green);color:#001a08}
 
+.slots{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:0 12px 10px}
+@media(max-width:700px){.slots{grid-template-columns:1fr}}
+.slot{border:1px solid var(--line);padding:10px;text-align:center;transition:.2s;cursor:pointer}
+.slot.done{border-color:var(--green);background:rgba(55,214,122,.07)}
+.slot .num{font-family:'VT323',monospace;font-size:24px;color:var(--red-dim);line-height:1}
+.slot.done .num{color:var(--green)}
+.slot .st{font-size:9.5px;color:#6e6e7c;margin-top:5px;letter-spacing:1px}
+.slot.done .st{color:var(--green)}
+#chain{font-size:11px;padding:9px 12px;color:var(--amber);border-top:1px solid var(--line)}
 
-<p>これは私の唯一のPGPです。本物かどうかを確認するには、shinji/escelonがPGPキーで認証してください。私の現在のDiscordユーザー名はrenvat、Telegramユーザー名はcrydmsです。
-この2つのソーシャルメディアのみが私に連絡を取る手段です。あなたが私を認証しなかったことに起因するいかなる事態についても、私は責任を負いません。私のOGUユーザー名はescalonです。変更がない限り、このウェブサイトは私が使用します。-shinji</p>
+.contact{display:flex;justify-content:space-between;align-items:center;padding:9px 12px;border-bottom:1px dashed rgba(255,255,255,.05);gap:8px}
+.contact .who{font-size:11px;color:#e9e9f0}
+.contact .who small{display:block;color:#5e5e6d;font-size:9px}
+.contact button{font:inherit;font-size:9.5px;padding:5px 10px;background:transparent;border:1px solid var(--red-dim);color:var(--red);cursor:pointer;letter-spacing:1px}
+.contact button:hover{background:var(--red);color:#000}
 
+#leakgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(58px,1fr));gap:4px;padding:8px}
+.tile{aspect-ratio:1;position:relative;overflow:hidden;filter:blur(6px) saturate(.25) brightness(.5);transition:filter .9s ease}
+.tile.open{filter:none}
+.tile span{position:absolute;bottom:1px;left:2px;font-size:6.5px;color:#fff;opacity:.8;text-shadow:0 0 4px #000}
+.tile.open::after{content:"LEAKED";position:absolute;top:2px;right:2px;font-size:6px;background:var(--red);color:#000;padding:1px 3px;letter-spacing:0}
 
+#ecg{display:block;width:100%;height:96px;background:#05050a;border-top:1px solid var(--line)}
+.bpm{padding:6px 12px;font-size:11px;color:var(--red);display:flex;justify-content:space-between}
+.bpm b{color:#fff;font-size:15px}
+#camwrap{position:relative;background:#000;aspect-ratio:4/3;overflow:hidden;margin:8px}
+#cam{width:100%;height:100%;object-fit:cover;filter:grayscale(.6) contrast(1.3) brightness(.85) sepia(.25) hue-rotate(-25deg) saturate(1.8)}
+#camwrap::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(to bottom,rgba(0,0,0,0) 0 2px,rgba(0,0,0,.4) 2px 4px);pointer-events:none}
+.camtags{position:absolute;inset:0;pointer-events:none;font-size:9.5px;color:#ff4b57;padding:6px;display:flex;flex-direction:column;justify-content:space-between}
+.camtags .t{display:flex;justify-content:space-between}
+.crosshair{position:absolute;inset:0;pointer-events:none;background:linear-gradient(to right,transparent 49.7%,rgba(255,31,46,.5) 49.7% 50.3%,transparent 50.3%),linear-gradient(to bottom,transparent 49.7%,rgba(255,31,46,.5) 49.7% 50.3%,transparent 50.3%)}
+#camstatus{color:var(--amber);font-size:10px;padding:0 12px 6px;letter-spacing:2px}
+#map{width:100%;height:230px;border:0;filter:grayscale(1) invert(.92) contrast(1.1) sepia(.4) hue-rotate(-40deg);background:#0a0a10;margin-top:8px}
+#log{height:230px;overflow:hidden;padding:8px 12px;font-size:10.5px;line-height:1.75;color:#7d7d8c;display:flex;flex-direction:column;justify-content:flex-end}
+#log div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#log .ok{color:var(--green)}#log .warn{color:var(--amber)}#log .bad{color:var(--red)}#log .mut{color:#4b4b58}
+.bar{padding:6px 12px;font-size:10px;color:#7d7d8c}
+.bar .top{display:flex;justify-content:space-between;margin-bottom:4px}
+.bar .top b{color:var(--red);font-weight:400}
+.track{height:6px;background:#14141b;border:1px solid var(--line);position:relative;overflow:hidden}
+.track i{position:absolute;inset:0 100% 0 0;background:linear-gradient(90deg,var(--red-dim),var(--red));transition:right .45s ease-out;box-shadow:0 0 12px rgba(255,31,46,.8)}
+.ports{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.ports div{display:flex;justify-content:space-between;padding:5px 12px;font-size:10.5px;border-bottom:1px dashed rgba(255,255,255,.05);color:#6e6e7c}
+.ports .open{color:var(--green)}.ports .filt{color:var(--amber)}.ports .closed{color:#4b4b58}
+.hop{display:flex;justify-content:space-between;padding:4px 12px;font-size:10.5px;color:#6e6e7c;border-bottom:1px dashed rgba(255,255,255,.05)}
+.hop span:last-child{color:var(--red)}
+.actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;padding:8px 0 40px;position:relative;z-index:10}
+.btn{font:inherit;font-size:12px;letter-spacing:2px;padding:12px 26px;cursor:pointer;background:transparent;color:var(--red);border:1px solid var(--red);transition:.16s}
+.btn:hover{background:var(--red);color:#0a0000;box-shadow:0 0 28px rgba(255,31,46,.6)}
+.btn.ghost{color:#8a8a99;border-color:var(--line)}
+.btn.ghost:hover{color:#fff;border-color:#fff;background:rgba(255,255,255,.08);box-shadow:none}
+footer{position:relative;z-index:10;text-align:center;padding:18px;border-top:1px solid var(--line);color:#4b4b58;font-size:10px;letter-spacing:2px}
+footer b{color:var(--red)}
+::selection{background:var(--red);color:#000}
+</style>
+</head>
+<body>
 
+<div id="scanlines"></div><div id="sweep"></div><div id="vignette"></div><div id="flash"></div>
 
+<!-- ================= LANDING ================= -->
+<div id="boot">
+  <div class="bt">
+    <div class="bt-tag">◆ UNAUTHORIZED ACCESS DETECTED ◆</div>
+    <h1 class="bt-main" id="bootHead">YOUR DEVICE HAS BEEN<br><b>COMPROMISED</b></h1>
+    <div class="bt-coord" id="bootCoord">TRIANGULATING…</div>
+    <div class="bt-meta" id="bootMeta">RESOLVING IP · ISP</div>
+    <div class="bt-gal" id="bootGal">GALLERY INDEXED: <b>0</b> ITEMS</div>
+    <div class="bt-warn">1 HOUR. 3 PEOPLE. OR IT ALL GOES OUT.</div>
+    <div class="gate wait" id="gate">[ SCANNING… ]</div>
+    <div class="bt-foot">PHOTOS · VIDEOS · EVERYTHING IN YOUR GALLERY</div>
+  </div>
+</div>
 
+<header>
+  <div class="brand"><span class="dot"></span> JAYZE // ROOT ACCESS</div>
+  <div class="hdr-right">
+    <span id="clock">--:--:--</span>
+    <span style="color:var(--red)">● REC</span>
+    <button id="mute">SND ON</button>
+  </div>
+</header>
 
+<div id="ticker"><span>
+  ⚠ ARCHIVE SEALED &nbsp;·&nbsp; GALLERY INDEXED &nbsp;·&nbsp; PUBLICATION IN 1 HOUR &nbsp;·&nbsp; 3 PEOPLE MUST OPEN THIS LINK &nbsp;·&nbsp; PROOF TO TELEGRAM jzcried OR DISCORD ukl3 &nbsp;·&nbsp; CLOSING THE TAB DOES NOT STOP THE CLOCK &nbsp;·&nbsp; JAYZE IS WATCHING &nbsp;·&nbsp;
+</span></div>
 
+<section class="hero">
+  <div class="tag">◆ INTRUSION CONFIRMED ◆</div>
+  <div class="glitch" id="heroTitle" data-t="YOU HAVE BEEN TAPPED">YOU HAVE BEEN TAPPED</div>
+  <div class="tapped-line">your device <b id="deviceName">UNKNOWN DEVICE</b> has been tapped by <b>JAYZE</b></div>
+  <div class="sub">everything below was pulled from this machine in <b id="elapsed">0.00</b>s · nothing was installed</div>
+</section>
 
+<main>
 
+  <section id="deadline">
+    <div class="top"><span id="dlLabel">◆ TIME UNTIL PUBLICATION ◆</span><span id="dlState">SEALED</span></div>
+    <div id="clockBig">60:00</div>
+    <div class="lbl" id="dlSub">THE ARCHIVE OPENS WHEN THIS HITS ZERO</div>
+    <div class="foot">
+      <span>DELAY CONDITION: <b>3 PEOPLE</b> MUST OPEN THIS LINK</span>
+      <span>PROOF REQUIRED TO <b>jzcried</b> OR <b>ukl3</b></span>
+    </div>
+  </section>
 
+  <!-- ================= INSTRUCTIONS ================= -->
+  <div class="panel c7" id="deal">
+    <h2>HOW TO STOP IT — READ <em>5 STEPS</em></h2>
+    <div class="steps">
+      <div class="step"><div class="sn">1</div><div class="stx"><b>Copy your invite link.</b><span>Button below. It is unique to this device.</span></div></div>
+      <div class="step"><div class="sn">2</div><div class="stx"><b>Send it to 3 people.</b><span>Any app. DM, group chat, story, whatever.</span></div></div>
+      <div class="step"><div class="sn">3</div><div class="stx"><b>They must open it.</b><span>Receiving is not enough. It has to be opened.</span></div></div>
+      <div class="step"><div class="sn">4</div><div class="stx"><b>Screenshot the 3 opens.</b><span>One screenshot, all three, readable.</span></div></div>
+      <div class="step"><div class="sn">5</div><div class="stx"><b>Send the proof to JAYZE.</b><span>Telegram <em>jzcried</em> or Discord <em>ukl3</em>. Either one.</span></div></div>
+    </div>
+    <button id="copyInvBig">COPY MY INVITE LINK</button>
+    <div class="slots">
+      <div class="slot" data-s="0"><div class="num">01</div><div class="st">PERSON 1 — NOT OPENED</div></div>
+      <div class="slot" data-s="1"><div class="num">02</div><div class="st">PERSON 2 — NOT OPENED</div></div>
+      <div class="slot" data-s="2"><div class="num">03</div><div class="st">PERSON 3 — NOT OPENED</div></div>
+    </div>
+    <div class="then">THEN YOUR ARCHIVE IS SECURED.<span>Photos. Videos. Everything in your gallery.</span></div>
+    <div id="chain">◆ CHAIN STATUS: <span id="chainSt">0/3 OPENED</span></div>
+  </div>
 
+  <!-- ================= PROOF ================= -->
+  <div class="panel c5">
+    <h2>SEND PROOF <em>CONTACT</em></h2>
+    <div class="contact"><div class="who">DISCORD<small>username</small></div><div class="who" style="color:var(--red);font-size:14px">ukl3</div><button data-copy="ukl3">COPY</button></div>
+    <div class="contact"><div class="who">TELEGRAM<small>username</small></div><div class="who" style="color:var(--red);font-size:14px">jzcried</div><button data-copy="jzcried">COPY</button></div>
+    <div class="contact"><div class="who">OPEN TELEGRAM<small>t.me/jzcried</small></div><button onclick="window.open('https://t.me/jzcried','_blank','noopener')">OPEN</button></div>
+    <div class="row" style="margin-top:6px"><span class="k">WHAT TO SEND</span><span class="v">SCREENSHOT OF 3 OPENS + TAP ID</span></div>
+    <div class="row"><span class="k">ACCEPTED UNTIL</span><span class="v" id="acceptUntil" style="color:var(--red)">—</span></div>
+    <div class="row"><span class="k">IF YOU SKIP THIS</span><span class="v" style="color:var(--red)">ARCHIVE GOES OUT</span></div>
+  </div>
 
+  <div class="panel c8">
+    <h2>GALLERY — INDEXED <em>DCIM//</em></h2>
+    <div class="row"><span class="k">ITEMS FOUND</span><span class="v big" id="gcount">0</span></div>
+    <div class="row"><span class="k">SCANNING</span><span class="v" id="gscan" style="color:var(--red)">IN PROGRESS…</span></div>
+    <div id="leakgrid"></div>
+  </div>
 
+  <div class="panel c4">
+    <h2>VERDICT <em>//</em></h2>
+    <div class="row"><span class="k">THREAT LEVEL</span><span class="v big">CRITICAL</span></div>
+    <div class="row"><span class="k">EXPOSURE</span><span class="v" style="color:var(--red)">FULL</span></div>
+    <div class="row"><span class="k">ARCHIVE NAME</span><span class="v" id="zip">…</span></div>
+    <div class="row"><span class="k">TAP ID</span><span class="v" id="tapId">…</span></div>
+    <div class="row"><span class="k">SESSION</span><span class="v" id="sess">…</span></div>
+    <div class="row"><span class="k">TAP STARTED</span><span class="v" id="started">…</span></div>
+    <div class="row"><span class="k">RELOADS</span><span class="v" id="reloads">1</span></div>
+  </div>
 
+  <div class="panel c4">
+    <h2>IDENTITY <em>TAP-01</em></h2>
+    <div class="row"><span class="k">PUBLIC IP</span><span class="v pend big" id="ip">…</span></div>
+    <div class="row"><span class="k">IPv6 / ALT</span><span class="v pend" id="ip6">…</span></div>
+    <div class="row"><span class="k">ISP</span><span class="v pend" id="isp">…</span></div>
+    <div class="row"><span class="k">ORGANIZATION</span><span class="v pend" id="org">…</span></div>
+    <div class="row"><span class="k">ASN</span><span class="v pend" id="asn">…</span></div>
+    <div class="row"><span class="k">HOSTNAME</span><span class="v pend" id="rdns">…</span></div>
+    <div class="row"><span class="k">CONNECTION</span><span class="v pend" id="conn">…</span></div>
+  </div>
 
+  <div class="panel c4">
+    <h2>GEO-LOCATION <em>TAP-02</em></h2>
+    <div class="row"><span class="k">CITY</span><span class="v pend big" id="city">…</span></div>
+    <div class="row"><span class="k">REGION</span><span class="v pend" id="region">…</span></div>
+    <div class="row"><span class="k">COUNTRY</span><span class="v pend" id="country">…</span></div>
+    <div class="row"><span class="k">POSTAL</span><span class="v pend" id="postal">…</span></div>
+    <div class="row"><span class="k">COORDINATES</span><span class="v pend" id="coords">…</span></div>
+    <div class="row"><span class="k">GPS ACCURACY</span><span class="v pend" id="acc">…</span></div>
+    <div class="row"><span class="k">TIMEZONE</span><span class="v pend" id="tz">…</span></div>
+  </div>
 
+  <div class="panel c4">
+    <h2>DEVICE <em>TAP-03</em></h2>
+    <div class="row"><span class="k">DEVICE NAME</span><span class="v pend big" id="dname">…</span></div>
+    <div class="row"><span class="k">PLATFORM</span><span class="v pend" id="plat">…</span></div>
+    <div class="row"><span class="k">BROWSER</span><span class="v pend" id="brow">…</span></div>
+    <div class="row"><span class="k">RESOLUTION</span><span class="v pend" id="res">…</span></div>
+    <div class="row"><span class="k">GPU</span><span class="v pend" id="gpu">…</span></div>
+    <div class="row"><span class="k">CPU CORES</span><span class="v pend" id="cores">…</span></div>
+    <div class="row"><span class="k">MEMORY</span><span class="v pend" id="mem">…</span></div>
+    <div class="row"><span class="k">BATTERY</span><span class="v pend" id="batt">…</span></div>
+    <div class="row"><span class="k">LOCAL IP</span><span class="v pend" id="lan">…</span></div>
+    <div class="row"><span class="k">LANGUAGE</span><span class="v pend" id="lang">…</span></div>
+    <div class="row"><span class="k">FINGERPRINT</span><span class="v pend" id="fp">…</span></div>
+  </div>
 
+  <div class="panel c8">
+    <h2>LIVE FEED // OPTIC SENSOR <em>CAM-0</em></h2>
+    <div id="camwrap">
+      <video id="cam" autoplay playsinline muted></video>
+      <div class="crosshair"></div>
+      <div class="camtags">
+        <div class="t"><span>● REC</span><span id="camres">640x480</span></div>
+        <div class="t"><span id="camstamp">--:--:--</span><span>JAYZE_EYE</span></div>
+      </div>
+    </div>
+    <div id="camstatus">REQUESTING SENSOR…</div>
+  </div>
 
+  <div class="panel c4">
+    <h2>VITALS <em>HR-9</em></h2>
+    <canvas id="ecg"></canvas>
+    <div class="bpm"><span>HEART RATE</span><b id="bpm">128</b></div>
+    <div class="row"><span class="k">STATUS</span><span class="v" style="color:var(--red)">ELEVATED</span></div>
+    <div class="row"><span class="k">BPM TREND</span><span class="v" id="trend">RISING</span></div>
+  </div>
 
+  <div class="panel c6">
+    <h2>EXFILTRATION <em>IO</em></h2>
+    <div class="bar"><div class="top"><span>BROWSER PROFILE</span><b id="p1v">0%</b></div><div class="track"><i id="p1"></i></div></div>
+    <div class="bar"><div class="top"><span>SESSION COOKIES</span><b id="p2v">0%</b></div><div class="track"><i id="p2"></i></div></div>
+    <div class="bar"><div class="top"><span>/home/PHOTOS</span><b id="p3v">0%</b></div><div class="track"><i id="p3"></i></div></div>
+    <div class="bar"><div class="top"><span>KEYCHAIN.DAT</span><b id="p4v">0%</b></div><div class="track"><i id="p4"></i></div></div>
+    <div class="bar"><div class="top"><span>MESSAGING DB</span><b id="p5v">0%</b></div><div class="track"><i id="p5"></i></div></div>
+    <div class="row" style="margin-top:6px"><span class="k">FILES CLAIMED</span><span class="v big" id="files">0</span></div>
+    <div class="row"><span class="k">ARCHIVE SIZE</span><span class="v" id="size">0.00 MB</span></div>
+  </div>
 
+  <div class="panel c6">
+    <h2>PACKET LOG <em>STREAM</em></h2>
+    <div id="log"></div>
+  </div>
 
+  <div class="panel c6">
+    <h2>ROUTE TRACE <em>HOPS</em></h2>
+    <div id="hops"></div>
+  </div>
 
+  <div class="panel c6">
+    <h2>PORT SCAN <em>TCP</em></h2>
+    <div class="ports" id="ports"></div>
+  </div>
 
+  <div class="panel c8">
+    <h2>SATELLITE LOCK <em>GEO-0</em></h2>
+    <div class="row"><span class="k">MAP LINK</span><span class="v" id="maplink">…</span></div>
+    <iframe id="map" loading="lazy" referrerpolicy="no-referrer"></iframe>
+  </div>
 
+  <div class="panel c4">
+    <h2>PUBLISH TARGETS <em>OUT</em></h2>
+    <div class="row"><span class="k">STATUS</span><span class="v" id="pubStatus" style="color:var(--red)">SEALED</span></div>
+    <div class="row"><span class="k">PRIMARY</span><span class="v">TELEGRAM / jzcried</span></div>
+    <div class="row"><span class="k">SECONDARY</span><span class="v">DISCORD / ukl3</span></div>
+    <div class="row"><span class="k">PAYLOAD</span><span class="v" id="payloadName">…</span></div>
+    <div class="row"><span class="k">ENCRYPTION</span><span class="v">AES-256 / SEALED</span></div>
+    <div class="row"><span class="k">DO NOT DISTURB</span><span class="v">TAB MUST STAY OPEN</span></div>
+  </div>
 
+</main>
 
+<div class="actions">
+  <button class="btn" id="retap">RE-TAP THIS DEVICE</button>
+  <button class="btn ghost" id="copy">COPY REPORT</button>
+  <button class="btn ghost" id="resetT">RESET CLOCK</button>
+</div>
 
+<footer>TAPPED BY <b>JAYZE</b> · FRONT-END ONLY · NO INSTALL · NO COOKIES WRITTEN</footer>
 
+<script>
+/* ============ utils ============ */
+const $ = id => document.getElementById(id);
+const rnd = n => Math.floor(Math.random()*n);
+const hex = n => Array.from({length:n},()=> "0123456789abcdef"[rnd(16)]).join('');
+const pad = n => String(n).padStart(2,'0');
+const flash = () => { $('flash').classList.add('on'); setTimeout(()=>$('flash').classList.remove('on'), 70); };
+function scramble(el, val){
+  if(!el) return;
+  el.classList.remove('pend');
+  const chars = "!<>-_\\/[]{}=+*^?#01", s = String(val); let i = 0;
+  const t = setInterval(()=>{
+    el.textContent = s.split('').map((c,j)=> j<i ? c : chars[rnd(chars.length)]).join('');
+    if(i >= s.length){ clearInterval(t); el.textContent = s; }
+    i++;
+  }, 16);
+}
 
+/* ============ audio ============ */
+let actx=null, master=null, muted=false;
+function audio(){
+  try{
+    actx = new (window.AudioContext||window.webkitAudioContext)();
+    master = actx.createGain(); master.gain.value = 0.34; master.connect(actx.destination);
+    const osc=actx.createOscillator(), lfo=actx.createOscillator(), lg=actx.createGain(), g=actx.createGain();
+    osc.type='sawtooth'; osc.frequency.value=420;
+    lfo.type='sine'; lfo.frequency.value=0.22; lg.gain.value=190;
+    lfo.connect(lg); lg.connect(osc.frequency);
+    g.gain.value=0.045; osc.connect(g); g.connect(master);
+    osc.start(); lfo.start();
+    setInterval(()=>{ if(!muted) thump(); }, 1150);
+    thump();
+  }catch(e){}
+}
+function thump(){
+  if(!actx || muted) return;
+  const t = actx.currentTime;
+  [0, 0.21].forEach((off, i)=>{
+    const o=actx.createOscillator(), g=actx.createGain();
+    o.frequency.setValueAtTime(74, t+off);
+    o.frequency.exponentialRampToValueAtTime(36, t+off+0.16);
+    g.gain.setValueAtTime(0.0001, t+off);
+    g.gain.exponentialRampToValueAtTime(i?0.42:0.8, t+off+0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, t+off+0.26);
+    o.connect(g); g.connect(master); o.start(t+off); o.stop(t+off+0.3);
+  });
+}
+function beep(freq, dur, vol){
+  if(!actx || muted) return;
+  const t = actx.currentTime, o = actx.createOscillator(), g = actx.createGain();
+  o.type='square'; o.frequency.value = freq;
+  g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t+dur);
+  o.connect(g); g.connect(master); o.start(t); o.stop(t+dur);
+}
+$('mute').onclick = () => {
+  muted = !muted;
+  if(master) master.gain.value = muted ? 0 : 0.34;
+  $('mute').textContent = muted ? 'SND OFF' : 'SND ON';
+};
 
+/* ============ clock ============ */
+setInterval(()=>{
+  const d = new Date(), t = `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+  $('clock').textContent = t;
+  const cs = $('camstamp'); if(cs) cs.textContent = t;
+}, 1000);
 
+/* ============ device ============ */
+function deviceName(){
+  const ua = navigator.userAgent;
+  if(/Windows NT 10/.test(ua)) return 'WINDOWS PC';
+  if(/Windows NT 6\.3/.test(ua)) return 'WINDOWS 8.1 PC';
+  if(/Windows NT 6\.1/.test(ua)) return 'WINDOWS 7 PC';
+  if(/Windows/.test(ua)) return 'WINDOWS MACHINE';
+  if(/Android/.test(ua)){
+    const m = ua.match(/Android[^;]*;\s*([^;)]+?)(?:\s+Build|\s*\))/);
+    return m ? 'ANDROID ' + m[1].trim().toUpperCase() : 'ANDROID DEVICE';
+  }
+  if(/iPhone/.test(ua)) return 'APPLE iPHONE';
+  if(/iPad/.test(ua)) return 'APPLE iPAD';
+  if(/Macintosh|Mac OS X/.test(ua)) return 'MACBOOK / iMAC';
+  if(/CrOS/.test(ua)) return 'CHROMEBOOK';
+  if(/Linux/.test(ua)) return 'LINUX MACHINE';
+  return 'UNKNOWN MACHINE';
+}
+function browser(){
+  const ua = navigator.userAgent;
+  if(/Edg\//.test(ua)) return 'EDGE ' + (ua.match(/Edg\/([\d.]+)/)||[,'?'])[1];
+  if(/OPR\//.test(ua)) return 'OPERA';
+  if(/Firefox\//.test(ua)) return 'FIREFOX ' + (ua.match(/Firefox\/([\d.]+)/)||[,'?'])[1];
+  if(/Chrome\//.test(ua)) return 'CHROME ' + (ua.match(/Chrome\/([\d.]+)/)||[,'?'])[1];
+  if(/Safari\//.test(ua)) return 'SAFARI ' + (ua.match(/Version\/([\d.]+)/)||[,'?'])[1];
+  return 'UNRECOGNIZED';
+}
+function gpu(){
+  try{
+    const c = document.createElement('canvas');
+    const gl = c.getContext('webgl') || c.getContext('experimental-webgl');
+    const d = gl.getExtension('WEBGL_debug_renderer_info');
+    return gl.getParameter(d.UNMASKED_RENDERER_WEBGL).slice(0,52);
+  }catch(e){ return 'MASKED'; }
+}
+function fingerprint(){
+  try{
+    const c = document.createElement('canvas'); c.width=240; c.height=60;
+    const x = c.getContext('2d');
+    x.textBaseline='top'; x.font='16px monospace';
+    x.fillStyle='#f00'; x.fillText('JAYZE-TAP-'+navigator.userAgent, 2, 4);
+    x.fillStyle='rgba(0,0,255,.6)'; x.fillText('JAYZE-TAP-'+navigator.userAgent, 4, 22);
+    const s = c.toDataURL();
+    let h = 0; for(let i=0;i<s.length;i++) h = ((h<<5)-h + s.charCodeAt(i))|0;
+    return 'FP-' + Math.abs(h).toString(16).toUpperCase().padStart(8,'0');
+  }catch(e){ return 'FP-UNAVAILABLE'; }
+}
+async function localIPs(){
+  return new Promise(res=>{
+    const ips = new Set();
+    try{
+      const pc = new RTCPeerConnection({iceServers:[{urls:'stun:stun.l.google.com:19302'}]});
+      pc.onicecandidate = e => {
+        if(!e.candidate) return;
+        const m = /(\d{1,3}(?:\.\d{1,3}){3}|[a-f0-9]{1,4}(?::[a-f0-9]{0,4}){2,7})/i.exec(e.candidate.candidate);
+        if(m) ips.add(m[1]);
+      };
+      pc.createDataChannel('jz');
+      pc.createOffer().then(o=>pc.setLocalDescription(o));
+      setTimeout(()=>{ try{pc.close();}catch(e){} res([...ips]); }, 2600);
+    }catch(e){ res([]); }
+  });
+}
 
+/* ============ geo ============ */
+async function geo(){
+  const chain = [
+    async () => {
+      const r = await fetch('https://ipwho.is/'); const d = await r.json();
+      if(!d.success) throw 0;
+      return { ip:d.ip, city:d.city, region:d.region, country:d.country, cc:d.country_code, postal:d.postal,
+               lat:d.latitude, lon:d.longitude, isp:d.connection?.isp, org:d.connection?.org, asn:d.connection?.asn, tz:d.timezone?.id };
+    },
+    async () => {
+      const r = await fetch('https://ipapi.co/json/'); const d = await r.json();
+      if(d.error) throw 0;
+      return { ip:d.ip, city:d.city, region:d.region, country:d.country_name, cc:d.country_code, postal:d.postal,
+               lat:d.latitude, lon:d.longitude, isp:d.org, org:d.org, asn:d.asn, tz:d.timezone };
+    },
+    async () => {
+      const r = await fetch('https://api.ipify.org?format=json'); const d = await r.json();
+      return { ip:d.ip };
+    }
+  ];
+  for(const fn of chain){ try{ return await fn(); }catch(e){} }
+  return {};
+}
 
+/* ============ PRE-SCAN (runs on landing) ============ */
+const DATA = {};
+let prePromise = null, gateReady = false;
 
+function setHead(dn, loc){
+  const head = $('bootHead');
+  if(loc) head.innerHTML = `YOUR <b>${dn}</b> IN <b>${loc}</b><br>HAS BEEN COMPROMISED`;
+  else head.innerHTML = `YOUR <b>${dn}</b> HAS BEEN<br><b>COMPROMISED</b>`;
+}
+function armGate(){
+  if(gateReady) return;
+  gateReady = true;
+  const g = $('gate');
+  g.classList.remove('wait');
+  g.textContent = '[ PRESS TO ENGAGE ]';
+}
 
+function preScan(){
+  // instant: device
+  DATA.device = deviceName();
+  setHead(DATA.device, null);
 
+  // gallery counter ticker
+  let n = 0;
+  const target = 1400 + rnd(3200);
+  DATA.gallery = target;
+  const gi = setInterval(()=>{
+    n += Math.max(1, Math.floor(target/28));
+    if(n >= target){ n = target; clearInterval(gi); }
+    $('bootGal').innerHTML = `GALLERY INDEXED: <b>${n.toLocaleString()}</b> ITEMS`;
+  }, 90);
 
+  prePromise = (async ()=>{
+    const g = await geo();
+    Object.assign(DATA, g);
+    const loc = g.city && g.country ? `${g.city.toUpperCase()}, ${g.country.toUpperCase()}` : 'YOUR AREA';
+    setHead(DATA.device, loc);
+    $('bootMeta').textContent = (g.ip ? 'IP ' + g.ip + ' · ' : '') + (g.isp ? g.isp.toUpperCase() : 'ISP HIDDEN');
+    if(g.lat && g.lon) $('bootCoord').textContent = `LAT ${g.lat.toFixed(5)}  /  LON ${g.lon.toFixed(5)}`;
+    else $('bootCoord').textContent = 'COORDINATES MASKED';
 
+    // gps refine on landing
+    if(navigator.geolocation){
+      navigator.geolocation.getCurrentPosition(
+        p => {
+          DATA.gps = p.coords;
+          $('bootCoord').textContent = `LAT ${p.coords.latitude.toFixed(5)}  /  LON ${p.coords.longitude.toFixed(5)}  ·  ±${Math.round(p.coords.accuracy)}M`;
+        },
+        () => {}, { enableHighAccuracy:true, timeout:8000 }
+      );
+    }
+    armGate();
+  })();
 
+  setTimeout(armGate, 5200);
+}
 
+/* ============ logs ============ */
+const logLines = [
+  ['mut','> handshake accepted :: 0x'+hex(6)],
+  ['ok','> TCP mirror attached'],
+  ['warn','> gallery index opened /DCIM'],
+  ['bad','> 1,4XX MEDIA FILES ENUMERATED'],
+  ['warn','> geo-ip resolver queried'],
+  ['ok','> coordinates resolved'],
+  ['bad','> ISP identified'],
+  ['mut','> webrtc candidate harvested'],
+  ['ok','> local interface exposed'],
+  ['warn','> canvas fingerprint hashed'],
+  ['bad','> optic sensor stream opened'],
+  ['mut','> frame buffer captured'],
+  ['warn','> session token cloned'],
+  ['ok','> uplink to jayze:443 established'],
+  ['bad','> ARCHIVE SEALED — AES-256'],
+  ['mut','> chunk '+hex(4)+' ok'],
+  ['ok','> chunk '+hex(4)+' ok'],
+  ['warn','> integrity check passed'],
+  ['bad','> COUNTDOWN ARMED'],
+  ['mut','> idle. waiting for 3 opens.'],
+];
+function log(cls, msg){
+  const box = $('log'), d = document.createElement('div');
+  d.className = cls; d.textContent = msg;
+  box.appendChild(d);
+  while(box.children.length > 26) box.removeChild(box.firstChild);
+}
+let li = 0;
+function logLoop(){
+  if(li < logLines.length) log(...logLines[li++]);
+  else log('mut', ['> packet '+hex(5)+' relayed','> heartbeat echo','> port state refreshed','> keys rotated','> waiting for 3 clicks…'][rnd(5)]);
+  setTimeout(logLoop, 420 + rnd(900));
+}
 
+/* ============ bars ============ */
+function runBar(i, speed){
+  const fill = $('p'+i), lbl = $('p'+i+'v');
+  let v = 0;
+  const t = setInterval(()=>{
+    v += 1 + rnd(speed);
+    if(v >= 100){ v = 100; clearInterval(t); lbl.textContent = 'DONE'; lbl.style.color = 'var(--green)'; }
+    else lbl.textContent = v + '%';
+    fill.style.right = (100-v) + '%';
+  }, 90 + rnd(120));
+}
+let files = 0, mb = 0;
+setInterval(()=>{
+  files += 3 + rnd(40); mb += Math.random()*2.4;
+  $('files').textContent = files.toLocaleString();
+  $('size').textContent = mb.toFixed(2) + ' MB';
+}, 480);
 
+/* ============ hops / ports ============ */
+const hopCities = ['LOCAL GATEWAY','ISP EDGE','REGIONAL NODE','TRANSPORT RING','BACKBONE','JAYZE RELAY','ROOT ACCESS'];
+function buildHops(){
+  const box = $('hops'); box.innerHTML = '';
+  hopCities.forEach((c,i)=>{
+    setTimeout(()=>{
+      const d = document.createElement('div');
+      d.className = 'hop';
+      d.innerHTML = `<span>${i+1}  ${c}</span><span>${(Math.random()*40+2).toFixed(1)} ms</span>`;
+      box.appendChild(d);
+    }, 320*i + 200);
+  });
+}
+function buildPorts(){
+  const box = $('ports');
+  box.innerHTML = '';
+  [22,80,443,3389,8080,5900,21,53].forEach((p,i)=>{
+    const d = document.createElement('div');
+    d.innerHTML = `<span>PORT ${p}</span><span>SCANNING</span>`;
+    box.appendChild(d);
+    setTimeout(()=>{
+      const s = ['open','filt','closed'][rnd(3)];
+      d.className = s;
+      d.lastChild.textContent = s === 'open' ? 'OPEN' : s === 'filt' ? 'FILTERED' : 'CLOSED';
+    }, 500 + i*380);
+  });
+}
 
+/* ============ gallery ============ */
+function buildGallery(){
+  const grid = $('leakgrid');
+  const exts = ['HEIC','JPG','PNG','MP4','MOV'];
+  $('gcount').textContent = (DATA.gallery || 2400).toLocaleString();
+  for(let i=0;i<28;i++){
+    const d = document.createElement('div');
+    d.className = 'tile';
+    const h = rnd(360), h2 = (h + 40 + rnd(80)) % 360;
+    d.style.background = `linear-gradient(${rnd(360)}deg, hsl(${h} 55% 34%), hsl(${h2} 65% 18%))`;
+    d.innerHTML = `<span>IMG_${String(1000+rnd(8999))}.${exts[rnd(exts.length)]}</span>`;
+    grid.appendChild(d);
+  }
+  setInterval(()=>{
+    const tiles = grid.querySelectorAll('.tile:not(.open)');
+    if(!tiles.length) return;
+    tiles[rnd(tiles.length)].classList.add('open');
+  }, 700 + rnd(700));
+}
 
+/* ============ ecg ============ */
+const ecg = $('ecg'), ectx = ecg.getContext('2d');
+let ex = 0;
+function ecgSize(){ ecg.width = ecg.clientWidth; ecg.height = 96; }
+addEventListener('resize', ecgSize); ecgSize();
+function ecgTick(){
+  const w = ecg.width, h = ecg.height, mid = h/2;
+  ectx.fillStyle = 'rgba(5,5,10,.16)'; ectx.fillRect(0,0,w,h);
+  ectx.strokeStyle = '#ff1f2e'; ectx.lineWidth = 1.6; ectx.beginPath();
+  const beat = Math.floor(ex) % Math.round(w/2.2);
+  for(let i=0;i<6;i++){
+    const y = mid + (beat === i*2 ? -26 : beat === i*2+1 ? 20 : Math.sin((ex+i)*0.35)*2);
+    ectx.lineTo(ex + i, y);
+  }
+  ectx.stroke();
+  ex += 6;
+  if(ex > w){ ex = 0; ectx.clearRect(0,0,w,h); }
+  requestAnimationFrame(ecgTick);
+}
+ecgTick();
+setInterval(()=>{
+  const v = 112 + rnd(40);
+  $('bpm').textContent = v;
+  $('trend').textContent = v > 135 ? 'SPIKING' : v > 120 ? 'RISING' : 'UNSTABLE';
+}, 2400);
 
+/* ============ camera ============ */
+async function camera(){
+  try{
+    const s = await navigator.mediaDevices.getUserMedia({ video:{ width:640, height:480 }, audio:false });
+    const v = $('cam'); v.srcObject = s;
+    $('camstatus').textContent = '● SENSOR LIVE · DO NOT COVER LENS';
+    $('camres').textContent = v.videoWidth ? v.videoWidth+'x'+v.videoHeight : '640x480';
+    setTimeout(()=>flash(), 1600);
+  }catch(e){
+    $('camstatus').textContent = '✕ SENSOR BLOCKED — FEED UNAVAILABLE';
+  }
+}
 
+/* ============ gps / map ============ */
+function mapTo(lat, lon){
+  if(!lat || !lon) return;
+  const d = 0.02;
+  $('map').src = `https://www.openstreetmap.org/export/embed.html?bbox=${encodeURIComponent(`${lon-d},${lat-d/2},${lon+d},${lat+d/2}`)}&layer=mapnik&marker=${lat}%2C${lon}`;
+  $('maplink').textContent = `${lat.toFixed(5)}, ${lon.toFixed(5)}`;
+  $('maplink').style.color = 'var(--red)';
+}
 
+/* ============ countdown ============ */
+const DKEY = 'jz_deadline';
+let deadline = Number(localStorage.getItem(DKEY));
+if(!deadline){ deadline = Date.now() + 3600000; localStorage.setItem(DKEY, deadline); }
+let published = false, lastSec = -1;
 
-<p>-----BEGIN PGP PUBLIC KEY BLOCK-----</p>
+function fmt(ms){
+  const s = Math.max(0, Math.floor(ms/1000));
+  return `${pad(Math.floor(s/3600))}:${pad(Math.floor(s%3600/60))}:${pad(s%60)}`;
+}
+function tick(){
+  const left = deadline - Date.now();
+  $('clockBig').textContent = fmt(left);
+  const s = Math.floor(left/1000);
+  if(s !== lastSec && s < 60 && s >= 0){
+    beep(s < 10 ? 1100 : 760, .07, .12);
+    if(s < 60) flash();
+  }
+  lastSec = s;
+  document.body.classList.toggle('critical', left > 0 && left < 600000);
+  if(left <= 0 && !published) publish();
+}
+function publish(){
+  published = true;
+  document.body.classList.add('published');
+  $('heroTitle').textContent = 'YOU HAVE BEEN PUBLISHED';
+  $('heroTitle').dataset.t = 'YOU HAVE BEEN PUBLISHED';
+  $('dlLabel').textContent = '◆ PUBLICATION COMPLETE ◆';
+  $('dlState').textContent = 'LIVE';
+  $('dlSub').textContent = 'ARCHIVE IS OUT. GALLERY PUBLIC.';
+  $('pubStatus').textContent = 'PUBLISHED';
+  $('gscan').textContent = 'COMPLETE';
+  document.querySelectorAll('.tile').forEach(t=>t.classList.add('open'));
+  log('bad', '> PUBLICATION EXECUTED — ARCHIVE LIVE');
+  beep(300, .5, .25); setTimeout(()=>beep(220, .8, .25), 320);
+  flash();
+}
+setInterval(tick, 200);
+tick();
+$('resetT').onclick = () => { localStorage.removeItem(DKEY); location.reload(); };
 
-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
-=UV/5
-<p>-----END PGP PUBLIC KEY BLOCK-----</p>
+/* ============ chain ============ */
+let tapId = hex(8).toUpperCase();
+const SLOTKEY = 'jz_slots';
+let slots = JSON.parse(localStorage.getItem(SLOTKEY) || '[false,false,false]');
+
+function inviteLink(){ return location.origin + location.pathname + '#t=' + tapId; }
+function renderSlots(){
+  document.querySelectorAll('.slot').forEach((el,i)=>{
+    const on = slots[i];
+    el.classList.toggle('done', on);
+    el.querySelector('.st').textContent = `PERSON ${i+1} — ${on ? 'OPENED ✓' : 'NOT OPENED'}`;
+  });
+  const n = slots.filter(Boolean).length;
+  $('chainSt').textContent = n + '/3 OPENED';
+  if(n >= 3){
+    $('chainSt').style.color = 'var(--green)';
+    $('chainSt').textContent = '3/3 — CHAIN SECURED';
+    if(!published){
+      $('dlState').textContent = 'CONTESTED';
+      $('dlSub').textContent = 'CHAIN COMPLETE — SEND PROOF OR IT STILL GOES OUT';
+    }
+  } else $('chainSt').style.color = 'var(--amber)';
+  localStorage.setItem(SLOTKEY, JSON.stringify(slots));
+}
+document.querySelectorAll('.slot').forEach((el,i)=>{
+  el.onclick = () => {
+    slots[i] = !slots[i];
+    renderSlots();
+    if(slots[i]) beep(660, .07, .12);
+  };
+});
+$('copyInvBig').onclick = async () => {
+  const b = $('copyInvBig');
+  try{
+    await navigator.clipboard.writeText(inviteLink());
+    b.textContent = 'LINK COPIED — NOW SEND IT TO 3 PEOPLE';
+    b.classList.add('done');
+    beep(880, .06, .12);
+  }catch(e){ b.textContent = 'COPY FAILED — SELECT THE LINK MANUALLY'; }
+  setTimeout(()=>{ b.textContent = 'COPY MY INVITE LINK'; b.classList.remove('done'); }, 3200);
+};
+
+/* ============ report ============ */
+function report(){
+  const keys = ['ip','ip6','isp','org','asn','rdns','conn','city','region','country','postal','coords','acc','tz','dname','plat','brow','res','gpu','cores','mem','batt','lan','lang','fp','tapId','sess','zip'];
+  return 'JAYZE // TAP REPORT\n' + new Date().toISOString() + '\nTAP ' + tapId + '\n\n' +
+    keys.map(k => k.toUpperCase().padEnd(14) + ' : ' + ($(k)?.textContent || '')).join('\n') +
+    '\n\nCHAIN: ' + slots.filter(Boolean).length + '/3';
+}
+$('copy').onclick = async () => {
+  try{ await navigator.clipboard.writeText(report()); $('copy').textContent = 'COPIED ✓'; }
+  catch(e){ $('copy').textContent = 'COPY FAILED'; }
+  setTimeout(()=>$('copy').textContent = 'COPY REPORT', 1800);
+};
+document.querySelectorAll('[data-copy]').forEach(b=>{
+  b.onclick = async () => {
+    try{ await navigator.clipboard.writeText(b.dataset.copy); b.textContent = '✓'; }
+    catch(e){ b.textContent = 'X'; }
+    setTimeout(()=>b.textContent = 'COPY', 1400);
+  };
+});
+
+/* ============ engage ============ */
+const start = Date.now();
+let booted = false;
+
+async function engage(){
+  if(booted || !gateReady) return;
+  booted = true;
+  $('boot').classList.add('hide');
+  setTimeout(()=>$('boot').remove(), 550);
+
+  audio();
+
+  const m = /#t=([a-f0-9]{8})/i.exec(location.hash);
+  if(m){
+    $('chainSt').textContent = 'INHERITED FROM TAP ' + m[1].toUpperCase();
+    log('warn', '> INHERITED TAP ' + m[1].toUpperCase() + ' — YOU WERE RECRUITED');
+  }
+
+  $('deviceName').textContent = DATA.device || deviceName();
+  $('started').textContent = new Date().toLocaleString();
+  $('tapId').textContent = tapId;
+  $('sess').textContent = hex(12).toUpperCase();
+  $('zip').textContent = 'tap_?????_full.zip';
+  $('payloadName').textContent = 'tap_?????_full.zip';
+  $('acceptUntil').textContent = new Date(deadline).toLocaleTimeString();
+  $('reloads').textContent = Number(sessionStorage.getItem('jz')||0) + 1;
+  sessionStorage.setItem('jz', Number(sessionStorage.getItem('jz')||0) + 1);
+
+  renderSlots();
+  buildGallery();
+
+  scramble($('dname'), DATA.device || deviceName());
+  scramble($('plat'), navigator.platform || 'UNKNOWN');
+  scramble($('brow'), browser());
+  scramble($('res'), screen.width + 'x' + screen.height + ' @' + (devicePixelRatio||1) + 'x');
+  scramble($('gpu'), gpu());
+  scramble($('cores'), (navigator.hardwareConcurrency || '?') + ' THREADS');
+  scramble($('mem'), (navigator.deviceMemory || '?') + ' GB');
+  scramble($('lang'), navigator.language + ' / ' + (navigator.languages||[]).length + ' SET');
+  scramble($('fp'), fingerprint());
+  scramble($('tz'), Intl.DateTimeFormat().resolvedOptions().timeZone || '?');
+  scramble($('conn'), navigator.connection ? (navigator.connection.effectiveType || '?').toUpperCase() + ' / ' + (navigator.connection.downlink||'?') + ' Mbps' : 'HIDDEN');
+  scramble($('postal'), 'RESOLVING…');
+
+  if(navigator.getBattery){
+    try{
+      const b = await navigator.getBattery();
+      scramble($('batt'), Math.round(b.level*100) + '% ' + (b.charging ? '· CHARGING' : '· DISCHARGING'));
+    }catch(e){ scramble($('batt'), 'HIDDEN'); }
+  } else scramble($('batt'), 'HIDDEN');
+
+  buildHops(); buildPorts(); logLoop();
+  [1,2,3,4,5].forEach((n,i)=> setTimeout(()=>runBar(n, 2), 300 + i*700));
+  camera();
+
+  const lan = await localIPs();
+  scramble($('lan'), lan.length ? lan.join(' / ') : 'MASKED BY BROWSER');
+
+  await prePromise;
+
+  const g = DATA;
+  if(g.ip){
+    scramble($('ip'), g.ip);
+    scramble($('ip6'), /:/.test(g.ip) ? 'IPv6 NATIVE' : 'IPv4 · NO IPv6');
+    const zip = 'tap_' + g.ip.replace(/[.:]/g,'-') + '_full.zip';
+    $('zip').textContent = zip;
+    $('payloadName').textContent = zip;
+    log('bad', '> PUBLIC IP LOCKED ' + g.ip);
+  } else {
+    scramble($('ip'), 'BLOCKED'); scramble($('ip6'), '—');
+  }
+  scramble($('isp'), g.isp || 'UNKNOWN');
+  scramble($('org'), g.org || 'UNKNOWN');
+  scramble($('asn'), g.asn ? 'AS' + g.asn : 'UNKNOWN');
+  scramble($('rdns'), g.ip ? g.ip.split('.').reverse().join('.') + '.IN-ADDR.ARPA' : '—');
+  scramble($('city'), g.city || 'UNKNOWN');
+  scramble($('region'), g.region || 'UNKNOWN');
+  scramble($('country'), (g.country || 'UNKNOWN') + (g.cc ? ' [' + g.cc + ']' : ''));
+  scramble($('postal'), g.postal || '—');
+  scramble($('tz'), g.tz || $('tz').textContent);
+
+  if(g.gps){
+    scramble($('acc'), '±' + Math.round(g.gps.accuracy) + ' M');
+    scramble($('coords'), g.gps.latitude.toFixed(5) + ', ' + g.gps.longitude.toFixed(5));
+    mapTo(g.gps.latitude, g.gps.longitude);
+    log('bad', '> GPS HARD LOCK ±' + Math.round(g.gps.accuracy) + 'm');
+  } else if(g.lat && g.lon){
+    scramble($('acc'), 'IP-BASED ONLY');
+    scramble($('coords'), g.lat.toFixed(5) + ', ' + g.lon.toFixed(5));
+    mapTo(g.lat, g.lon);
+  } else {
+    scramble($('acc'), 'UNAVAILABLE');
+    scramble($('coords'), 'UNAVAILABLE');
+  }
+
+  setInterval(()=>{ $('elapsed').textContent = ((Date.now()-start)/1000).toFixed(2); }, 100);
+  setInterval(()=>{ if(Math.random() > 0.62) flash(); }, 2300);
+}
+
+$('boot').addEventListener('click', () => { if(gateReady) engage(); });
+$('retap').onclick = () => location.reload();
+
+preScan();
+</script>
+</body>
+</html>
